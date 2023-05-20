@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'drf_yasg',
     'users',
     'corsheaders',
-    'video_and_tag'
+    'video_and_tag',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -89,6 +90,7 @@ WSGI_APPLICATION = 'backend_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
+        #'OPTIONS':{'sql_mode':'traditional',},
         'NAME': os.getenv('DB_NAME'),
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASSWORD'),

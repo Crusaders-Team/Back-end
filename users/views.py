@@ -15,15 +15,53 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import SignupSerializer, ForgotPasswordSerializer, ChangePasswordSerializer, EditProfileSerializer
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.generics import RetrieveUpdateAPIView, UpdateAPIView
 from users.models import CustomUser
+from django.contrib.auth.hashers import make_password
+
+# from django.contrib.auth.views import PasswordChangeView
+# from .forms import CustomPasswordChangeForm
+
+# class CustomPasswordChangeView(PasswordChangeView):
+#     template_name = 'password_change.html'
+#     form_class = CustomPasswordChangeForm
+#     success_url = reverse_lazy('password_change_done')
+
+#email verfication
+
+# from django.contrib.auth.views import PasswordResetView
+# from django.urls import reverse_lazy
+# from .forms import CustomPasswordResetForm
+# class CustomPasswordResetView(PasswordResetView):
+#     # template_name = 'password_reset.html'
+#     form_class = CustomPasswordResetForm
+#     success_url = reverse_lazy('password_reset_done')
 
 
+class EditProfileView(UpdateAPIView):
+    serializer_class = EditProfileSerializer
+    permission_classes = [IsAuthenticated]
+    def get_object(self):
+        return self.request.user
 
-class UserEdit(RetrieveUpdateAPIView):
-    # permission_classes=[IsAuthenticated]
-    serializer_class=EditProfileSerializer
-    queryset=CustomUser.objects.all()
+    def put(self, request, *args, **kwargs):
+        serializer = self.get_serializer(instance=self.get_object(), data=request.data)
+        serializer.is_valid(raise_exception=True)
+        password = serializer.validated_data.pop('password', None)
+        if password:
+            hashed_password = make_password(password)
+            self.get_object().password = hashed_password
+        self.get_object().username = serializer.validated_data.get('username')
+        self.get_object().avatar = serializer.validated_data.get('avatar')
+        self.get_object().save()
+        return Response(serializer.data)
+
+
+# class UserEdit(RetrieveUpdateAPIView):
+#     # permission_classes=[IsAuthenticated]
+#     serializer_class=EditProfileSerializer
+#     queryset=CustomUser.objects.all()
+
 
 class SignupAPIView(generics.CreateAPIView):
     serializer_class = SignupSerializer
