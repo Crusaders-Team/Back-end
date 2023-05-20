@@ -21,9 +21,13 @@ class SignupSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(str(e))
         return value
     def create(self, validated_data):
+        print(validated_data.get('avatar'))
+        if validated_data.get('avatar')==None:
+            validated_data['avatar'] = '/avatars/avatars/default.png'
+        else:
+            user.avatar=validated_data.get('avatar')
         user = User.objects.create(username=validated_data.get('username'), email=validated_data.get('email'))
         user.set_password(validated_data.get('password'))
-        user.avatar=validated_data.get('avatar')
         user.save()
         return user
     

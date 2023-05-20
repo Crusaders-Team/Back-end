@@ -19,6 +19,15 @@ from rest_framework.generics import RetrieveUpdateAPIView, UpdateAPIView
 from users.models import CustomUser
 from django.contrib.auth.hashers import make_password
 
+
+
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.core.mail import EmailMessage
+
+from .tokens import account_activation_token
 # from django.contrib.auth.views import PasswordChangeView
 # from .forms import CustomPasswordChangeForm
 
