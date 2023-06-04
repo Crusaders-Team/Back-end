@@ -17,8 +17,11 @@ defusedxml==0.7.1
 distlib==0.3.6
 Django==4.2
 django-cors-headers==4.0.0
+django-crispy-forms==2.0
+django-recaptcha==3.0.0
 django-rest-swagger==2.2.0
 django-templated-mail==1.1.1
+django-tinymce==3.6.1
 djangorestframework==3.14.0
 djangorestframework-jwt==1.11.0
 djangorestframework-simplejwt==5.2.2
@@ -26,6 +29,7 @@ djoser==2.2.0
 drf-yasg==1.21.5
 executing==1.2.0
 filelock==3.11.0
+fontawesomefree==6.4.0
 fonttools==4.39.0
 idna==3.4
 inflection==0.5.1
