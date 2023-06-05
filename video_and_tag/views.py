@@ -13,8 +13,16 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework import viewsets, permissions
 from rest_framework import filters
+import requests
 
 
+def passview(request,token,uid):
+    # data={'token':token,
+    #     'uid':uid
+    #     }
+    # response=requests.post()
+    return HttpResponse('ok')
+    
 class VideoViewSet(viewsets.ModelViewSet):
     queryset = Video.objects.all()
     serializer_class = VideoSerializer

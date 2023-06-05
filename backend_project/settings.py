@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import djoser
 
 load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -141,7 +142,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
@@ -153,6 +153,22 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL ="users.CustomUser"
+
+
+DJOSER={
+    # 'EMAIL': {
+    # 'activation': 'djoser.email.ActivationEmail',
+    # 'confirmation': 'djoser.email.ConfirmationEmail',
+    # 'password_reset': 'djoser.email.PasswordResetEmail',
+    # 'password_changed_confirmation': 'djoser.email.PasswordChangedConfirmationEmail',
+    # 'username_changed_confirmation': 'djoser.email.UsernameChangedConfirmationEmail',
+    # 'username_reset': 'djoser.email.UsernameResetEmail',
+    # },  
+    
+    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
+    'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND' : True , 
+    'PASSWORD_RESET_CONFIRM_RETYPE' : True ,  
+}
 
 # Emailing settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
