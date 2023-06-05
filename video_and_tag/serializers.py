@@ -24,3 +24,9 @@ class VideoSerializer(serializers.ModelSerializer):
         obj = super().update(instance, validated_data)
         obj.save()
         return obj
+
+
+class VideoSearchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Video
+        fields = ('id', 'user', 'title', 'description', 'file', 'uploaded_at', 'tags')

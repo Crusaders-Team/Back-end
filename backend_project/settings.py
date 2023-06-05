@@ -11,7 +11,11 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-import os 
+import os
+from dotenv import load_dotenv
+import djoser
+
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -47,7 +51,8 @@ INSTALLED_APPS = [
     'drf_yasg',
     'users',
     'corsheaders',
-    'video_and_tag'
+    'video_and_tag',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -87,8 +92,13 @@ WSGI_APPLICATION = 'backend_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        #'OPTIONS':{'sql_mode':'traditional',},
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': '3306',
     }
 }
 
@@ -134,7 +144,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
@@ -146,3 +155,29 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL ="users.CustomUser"
+
+
+DJOSER={
+    # 'EMAIL': {
+    # 'activation': 'djoser.email.ActivationEmail',
+    # 'confirmation': 'djoser.email.ConfirmationEmail',
+    # 'password_reset': 'djoser.email.PasswordResetEmail',
+    # 'password_changed_confirmation': 'djoser.email.PasswordChangedConfirmationEmail',
+    # 'username_changed_confirmation': 'djoser.email.UsernameChangedConfirmationEmail',
+    # 'username_reset': 'djoser.email.UsernameResetEmail',
+    # },  
+    
+    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
+    'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND' : True , 
+    'PASSWORD_RESET_CONFIRM_RETYPE' : True ,  
+}
+
+# Emailing settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_FROM = 'pyt'
+EMAIL_HOST_USER = 'feel.goodgamescomp@gmail.com'
+EMAIL_HOST_PASSWORD = 'xsuqpomphxcfrcnf'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+PASSWORD_RESET_TIMEOUT = 14400

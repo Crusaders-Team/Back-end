@@ -4,7 +4,7 @@ from django.utils.encoding import force_bytes, force_str
 
 from django.shortcuts import render,redirect
 
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout,get_user_model
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
@@ -15,15 +15,66 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import SignupSerializer, ForgotPasswordSerializer, ChangePasswordSerializer, EditProfileSerializer
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.generics import RetrieveUpdateAPIView, UpdateAPIView
 from users.models import CustomUser
+from django.contrib.auth.hashers import make_password
 
 
 
-class UserEdit(RetrieveUpdateAPIView):
-    # permission_classes=[IsAuthenticated]
-    serializer_class=EditProfileSerializer
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.core.mail import EmailMessage
+from django.contrib import messages
+from .token import account_activation_token
+
+
+# from .tokens import account_activation_token
+# from django.contrib.auth.views import PasswordChangeView
+# from .forms import CustomPasswordChangeForm
+
+# class CustomPasswordChangeView(PasswordChangeView):
+#     template_name = 'password_change.html'
+#     form_class = CustomPasswordChangeForm
+#     success_url = reverse_lazy('password_change_done')
+
+#email verfication
+
+# from django.contrib.auth.views import PasswordResetView
+# from django.urls import reverse_lazy
+# from .forms import CustomPasswordResetForm
+# class CustomPasswordResetView(PasswordResetView):
+#     # template_name = 'password_reset.html'
+#     form_class = CustomPasswordResetForm
+#     success_url = reverse_lazy('password_reset_done')
+
+
+class EditProfileView(UpdateAPIView):
+    serializer_class = EditProfileSerializer
+    permission_classes = [IsAuthenticated]
     queryset=CustomUser.objects.all()
+    def get_object(self):
+        return self.request.user
+
+    def put(self, request, *args, **kwargs):
+        serializer = self.get_serializer(instance=self.get_object(), data=request.data)
+        serializer.is_valid(raise_exception=True)
+        password = serializer.validated_data.pop('password', None)
+        if password:
+            hashed_password = make_password(password)
+            self.get_object().password = hashed_password
+        self.get_object().username = serializer.validated_data.get('username')
+        self.get_object().avatar = serializer.validated_data.get('avatar')
+        self.get_object().save()
+        return Response(serializer.data)
+
+
+# class UserEdit(RetrieveUpdateAPIView):
+#     # permission_classes=[IsAuthenticated]
+#     serializer_class=EditProfileSerializer
+#     queryset=CustomUser.objects.all()
+
 
 class SignupAPIView(generics.CreateAPIView):
     serializer_class = SignupSerializer
@@ -157,3 +208,65 @@ class LogoutAPIView(APIView):
 #         # Display the edit profile form
 #         form = EditProfileForm(instance=request.user)
 #     return render(request, 'edit_profile.html', {'form': form})
+
+
+
+#email verification check
+# def register(request):
+#     if request.method == "POST":
+#         form = UserRegistrationForm(request.POST)
+#         if form.is_valid():
+#             user = form.save(commit=False)
+#             user.is_active = False
+#             user.save()
+#             activateEmail(request, user, form.cleaned_data.get('email'))
+#             return redirect('homepage')
+
+#         else:
+#             for error in list(form.errors.values()):
+#                 messages.error(request, error)
+
+#     else:
+#         form = UserRegistrationForm()
+
+#     return render(
+#         request=request,
+#         template_name="users/register.html",
+#         context={"form": form}
+#         )
+
+
+def activateEmail(request, user, to_email):
+    mail_subject = 'Activate your user account.'
+    message = render_to_string('template_activate_account.html', {
+        'user': user.username,
+        'domain': get_current_site(request).domain,
+        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+        'token': account_activation_token.make_token(user),
+        'protocol': 'https' if request.is_secure() else 'http'
+    })
+    email = EmailMessage(mail_subject, message, to=[to_email])
+    if email.send():
+        messages.success(request, f'Dear <b>{user}</b>, please go to you email <b>{to_email}</b> inbox and click on \
+            received activation link to confirm and complete the registration. <b>Note:</b> Check your spam folder.')
+    else:
+        messages.error(request, f'Problem sending confirmation email to {to_email}, check if you typed it correctly.')
+        
+def activate(request, uidb64, token):
+    User = get_user_model()
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+
+        messages.success(request, 'Thank you for your email confirmation. Now you can login your account.')
+        return redirect('login')
+    else:
+        messages.error(request, 'Activation link is invalid!')
+    
+    return redirect('homepage')

@@ -7,13 +7,22 @@ from rest_framework.parsers import FileUploadParser
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from .models import Video,Tag
-from .serializers import VideoSerializer,TagSerializer
+from .serializers import VideoSerializer,TagSerializer, VideoSearchSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework import viewsets, permissions
+from rest_framework import filters
+import requests
 
 
+def passview(request,token,uid):
+    # data={'token':token,
+    #     'uid':uid
+    #     }
+    # response=requests.post()
+    return HttpResponse('ok')
+    
 class VideoViewSet(viewsets.ModelViewSet):
     queryset = Video.objects.all()
     serializer_class = VideoSerializer
@@ -57,3 +66,10 @@ class TagList(generics.ListCreateAPIView):
 class TagDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+
+
+class VideoSearchAPIView(generics.ListAPIView):
+    queryset = Video.objects.all()
+    serializer_class = VideoSearchSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title', 'description', 'tags__name']
