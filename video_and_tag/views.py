@@ -21,7 +21,7 @@ def passview(request,token,uid):
     #     'uid':uid
     #     }
     # response=requests.post()
-    return HttpResponse('ok')
+    return HttpResponse('this task is succesfully completed :)')
     
 class VideoViewSet(viewsets.ModelViewSet):
     queryset = Video.objects.all()

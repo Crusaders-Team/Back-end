@@ -53,20 +53,33 @@ from .token import account_activation_token
 class EditProfileView(UpdateAPIView):
     serializer_class = EditProfileSerializer
     permission_classes = [IsAuthenticated]
+    print("1\n")
     queryset=CustomUser.objects.all()
+    print("2\n")
+
     def get_object(self):
+        print("3\n")
         return self.request.user
 
     def put(self, request, *args, **kwargs):
+        print("4\n")
         serializer = self.get_serializer(instance=self.get_object(), data=request.data)
+        print("5\n")
         serializer.is_valid(raise_exception=True)
+        print("6\n")
         password = serializer.validated_data.pop('password', None)
+        print("7\n")
         if password:
             hashed_password = make_password(password)
+            print("9\n")
             self.get_object().password = hashed_password
+            print("10\n")
         self.get_object().username = serializer.validated_data.get('username')
+        print("11\n")
         self.get_object().avatar = serializer.validated_data.get('avatar')
+        print("12\n")
         self.get_object().save()
+        print("13")
         return Response(serializer.data)
 
 
