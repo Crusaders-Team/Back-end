@@ -26,7 +26,7 @@ class SignupSerializer(serializers.ModelSerializer):
             validated_data['avatar'] = '/avatars/avatars/default.png'
         else:
             user.avatar=validated_data.get('avatar')
-        user = User.objects.create(username=validated_data.get('username'), email=validated_data.get('email'))
+        user = User.objects.create(username=validated_data.get('username'), email=validated_data.get('email'),is_active=True)
         user.set_password(validated_data.get('password'))
         user.save()
         return user

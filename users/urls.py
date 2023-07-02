@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import SignupAPIView, ForgotPasswordAPIView, ChangePasswordAPIView, LogoutAPIView,EditProfileView
+from .views import SignupAPIView, ForgotPasswordAPIView, ChangePasswordAPIView, LogoutAPIView,EditProfileView,password_reset_confirm
 from . import views
 
 # from .views import CustomPasswordResetView
