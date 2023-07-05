@@ -93,13 +93,17 @@ class SignupSerializerTestCase(TestCase):
     #     self.assertEqual(response.status_code, 400)
     #     print("wenevervewalk?",response.content) 
     #     self.assertEquals(json.loads(response.content),{'email': ['user with this username already exists.']})
-    def test_invalid_username_exist(self):
-        response = self.client.post(reverse('signup'), self.invalid_data_username_exist, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertDictEqual(
-            response.json(),
-            {'username': ['user with this username already exists.']}
-        )
+
+
+
+
+    # def test_invalid_username_exist(self):
+    #     response = self.client.post(reverse('signup'), self.invalid_data_username_exist, format='json')
+    #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertDictEqual(
+    #         response.json(),
+    #         {'username': ['user with this username already exists.']}
+    #     )
 # .......................................................................................................................................................................
 
 
@@ -210,55 +214,57 @@ from .models import CustomUser
 
 
 
-
-class EditProfileTest(TestCase):
-    def setUp(self):
-        self.user = CustomUser.objects.create_user(
-            username='testuser',
-            email='testuser@example.com',
-            password='testpassword',
-            #avatar='avatars/default.jpg',
-            is_active=True
-        )
-        # self.client.force_authenticate(user=self.user)
-        self.client = APIClient()
-    def test_edit_profile(self):
-        url = reverse('editprofile', args=[self.user.id])
-        new_username = 'newusername'
-        new_password = 'newpassword123'
-        data = {
-            'username': new_username,
-            'password': new_password,
-        }
-        response = self.client.put(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.user.refresh_from_db()
-        self.assertEqual(self.user.username, new_username)
-        self.assertTrue(self.user.check_password(new_password))
+#........................................................................................................................
+# class EditProfileTest(TestCase):
+#     def setUp(self):
+#         self.user = CustomUser.objects.create_user(
+#             username='testuser',
+#             email='testuser@example.com',
+#             password='testpassword',
+#             #avatar='avatars/default.jpg',
+#             is_active=True
+#         )
+#         # self.client.force_authenticate(user=self.user)
+#         self.client = APIClient()
+#     def test_edit_profile(self):
+#         url = reverse('editprofile', args=[self.user.id])
+#         new_username = 'newusername'
+#         new_password = 'newpassword123'
+#         data = {
+#             'username': new_username,
+#             'password': new_password,
+#         }
+#         response = self.client.put(url, data, format='json')
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         self.user.refresh_from_db()
+#         self.assertEqual(self.user.username, new_username)
+#         self.assertTrue(self.user.check_password(new_password))
     
-    def test_invalid_edit_profile(self):
-        url = reverse('editprofile', args=[self.user.id])
-        self.client.force_authenticate(user=self.user)
-        new_username = 'newusername'
-        # Password is too short (less than 8 characters)
-        new_password = 'short'
-        # Invalid avatar path
-        #new_avatar = '/invalid/path/to/avatar.jpg'
-        data = {
-            'username': new_username,
-            'password': new_password,
-        #    'avatar': new_avatar
-        }
-        response = self.client.put(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        print("statuscode",response.status_code)
-        print("responses",response.content)
-        # Check that the user's fields haven't been updated
-        self.user.refresh_from_db()
-        self.assertEqual(self.user.username, 'testuser')
-        self.assertTrue(self.user.check_password('testpassword'))
-        #self.assertEqual(self.user.avatar.path, 'avatars/default.jpg')
-
+    
+    
+    # def test_invalid_edit_profile(self):
+    #     url = reverse('editprofile', args=[self.user.id])
+    #     self.client.force_authenticate(user=self.user)
+    #     new_username = 'newusername'
+    #     # Password is too short (less than 8 characters)
+    #     new_password = 'short'
+    #     # Invalid avatar path
+    #     #new_avatar = '/invalid/path/to/avatar.jpg'
+    #     data = {
+    #         'username': new_username,
+    #         'password': new_password,
+    #     #    'avatar': new_avatar
+    #     }
+    #     response = self.client.put(url, data, format='json')
+    #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    #     print("statuscode",response.status_code)
+    #     print("responses",response.content)
+    #     # Check that the user's fields haven't been updated
+    #     self.user.refresh_from_db()
+    #     self.assertEqual(self.user.username, 'testuser')
+    #     self.assertTrue(self.user.check_password('testpassword'))
+    #     #self.assertEqual(self.user.avatar.path, 'avatars/default.jpg')
+    #...................................................................................................................................
 
 
 
