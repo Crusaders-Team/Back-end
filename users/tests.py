@@ -15,6 +15,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from .models import CustomUser
+import json
+
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -31,10 +33,12 @@ def random_base64():
 
 img_path = random_base64()
 
-class SignupSerializerTestCase(TestCase):
+
+
     # with open(img_path,"rb") as img_file:
-    #     image=base64.b64encode(img_file.read())
-           
+    #     image=base64.b64encode(img_file.read()) 
+class SignupSerializerTestCase(TestCase):
+      
     def setUp(self):
         self.client = APIClient()
         self.valid_data = {
@@ -49,6 +53,18 @@ class SignupSerializerTestCase(TestCase):
             'password': 'password',
             # 'avatar': img_path
         }
+        self.invalid_password_data_email= {
+            'username': 'testuser',
+            'email': 'testexample.com',
+            'password': 'passwordasas',
+            # 'avatar': img_path
+        }
+        self.invalid_data_username_exist = {
+            'username': 'testuser',
+            'email': 'test123@example.com',
+            'password': 'testpassword',
+            # 'avatar': img_path
+        }
 
     def test_valid_data(self):
         self.invalid_password_data
@@ -60,104 +76,31 @@ class SignupSerializerTestCase(TestCase):
         self.assertEqual(user.email, 'test@example.com')
         self.assertTrue(user.check_password('testpassword'))
 
-#         payload = jwt_payload_handler(user)
-#         token = jwt_encode_handler(payload)
-#         auth_header = {'HTTP_AUTHORIZATION': f'Bearer {token}'}
-
-#         response = self.client.get(reverse('user'), **auth_header)
-#         print(response.content,'#$%2\n')
-#         self.assertEqual(response.status_code, 200)
-# # #Continuation of the previous test code for `SignupSerializer`:
-
-#         self.assertEqual(response.data['username'], 'testuser')
-#         self.assertEqual(response.data['email'], 'test@example.com')
-#         self.assertEqual(response.data['avatar'], '/avatars/avatars/default.png')
-
     def test_invalid_password(self):
         response = self.client.post(reverse('signup'), self.invalid_password_data, format='json')
-        print(response.content,'#$%3\n')
-        
-        # print(json.loads(response.content)['password'], "###########")
-        
+        print(response.content,'#$%3\n')        
         self.assertEqual(response.status_code, 400)
         self.assertEquals(json.loads(response.content)['password'], ["['This password is too common.']"])
-
-#     def test_missing_required_fields(self):
-#         response = self.client.post(reverse('signup'), {'username': 'testuser'}, format='json')
-#         print(response.content,'#$%4\n')
-#         self.assertEqual(response.status_code, 400)
-#         self.assertEqual(response.data['email'], 'This field is required.')
-#         self.assertEqual(response.data['password'], 'This field is required.')
-
-#     def test_login_with_valid_credentials(self):
-#         # Create a user with valid credentials
-#         response = self.client.post(reverse('signup'), self.valid_data, format='json')
-#         print(response.content,'#$%5\n')
-#         self.assertEqual(response.status_code, 201)
-
-#         # Try to login with the valid credentials
-#         login_data = {
-#             'username': 'testuser',
-#             'password': 'testpassword'
-#         }
-#         response = self.client.post(reverse('login'), login_data, format='json')
-#         self.assertEqual(response.status_code, 200)
-
-#         # Check if the response contains a JWT token
-#         self.assertIn('token', response.data)
-
-#         #Continuation of the test code for `SignupSerializer`:
-
-#         # Use the JWT token to make a request to the protected endpoint
-#         auth_header = {'HTTP_AUTHORIZATION': f'Bearer {response.data["token"]}'}
-#         response = self.client.get('/api/user/', **auth_header)
-#         print(response.content,'#$%6\n')
-#         self.assertEqual(response.status_code, 200)
-
-#         # Check if the response data is correct
-#         self.assertEqual(response.data['username'], 'testuser')
-#         self.assertEqual(response.data['email'], 'test@example.com')
-#         self.assertEqual(response.data['avatar'], '/avatars/avatars/default.png')
-
-#     def test_login_with_invalid_credentials(self):
-#         # Create a user with valid credentials
-#         response = self.client.post(reverse('signup'), self.valid_data, format='json')
-#         self.assertEqual(response.status_code, 201)
-#         print(response.content)
-#         # Try to login with invalid password
-#         login_data = {
-#             'username': 'testuser',
-#             'password': 'wrongpassword'
-#         }
-#         response = self.client.post(reverse('login'), login_data, format='json')
-#         self.assertEqual(response.status_code, 400)
-#         self.assertEqual(response.data['non_field_errors'], 'Unable to log in with provided credentials.')
-
-#         # Try to login with invalid username
-#         login_data = {
-#             'username': 'wrongusername',
-#             'password': 'testpassword'
-#         }
-#         response = self.client.post(reverse('login'), login_data, format='json')
-#         print(response.content,'#$%7\n')
-#         self.assertEqual(response.status_code, 400)
-#         self.assertEqual(response.data['non_field_errors'], 'Unable to log in with provided credentials.')
-        
-        
-# # test_valid_data - This test case checks if the serializer can create a user with valid data, and if the JWT authentication works properly. It is the same as the test_valid_data test case from the previous test code.
-
-# # test_invalid_password - This test case checks if the serializer raises an error when the password is too weak. It is the same as the test_invalid_password test case from the previous test code.
-
-# # test_missing_required_fields - This test case checks if the serializer raises an error when required fields are missing. It is the same as the test_missing_required_fields test case from the previous test code.
-
-# # test_login_with_valid_credentials - This test case checks if the login endpoint works properly with valid credentials. It first creates a user with valid credentials using the valid_data, then it tries to log in with the same credentials using the /api/login/ endpoint. It checks if the response contains a JWT token, and uses the token to make a GET request to the protected /api/user/ endpoint. It checks if the response status is 200 and the data is correct.
-
-# # test_login_with_invalid_credentials - This test case checks if the login endpoint returns the correct error message when provided with invalid credentials. It creates a user with valid credentials using the valid_data, then it tries to log in with invalid credentials (wrong password and wrong username) using the /api/login/ endpoint. It checks if the response status is 400 and the response data contains the correct error message
-
-
-
-
-
+    
+    def test_invalid_email_fromat(self):
+        response = self.client.post(reverse('signup'),self.invalid_password_data_email, format='json')
+        self.assertEqual(response.status_code, 400)
+        print("didipaeizo?",response.content) 
+        self.assertEquals(json.loads(response.content),{'email': ['Enter a valid email address.']})
+# .......................................................................................................................................................................
+    # def test_invalid_username_exist(self):
+    #     response = self.client.post(reverse('signup'),self.invalid_data_username_exist , format='json')
+    #     self.assertEqual(response.status_code, 400)
+    #     print("wenevervewalk?",response.content) 
+    #     self.assertEquals(json.loads(response.content),{'email': ['user with this username already exists.']})
+    def test_invalid_username_exist(self):
+        response = self.client.post(reverse('signup'), self.invalid_data_username_exist, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertDictEqual(
+            response.json(),
+            {'username': ['user with this username already exists.']}
+        )
+# .......................................................................................................................................................................
 
 
 class LoginTest(APITestCase):
@@ -170,7 +113,7 @@ class LoginTest(APITestCase):
             is_active=True
         )
 
-    def test_login(self):
+    def test_login_valid(self):
         url = reverse('token_obtain_pair')
         data = {
             'username': 'testuser',
@@ -179,7 +122,7 @@ class LoginTest(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
     
-    def test_invalid_login(self):
+    def test_invalid_login_wrongpass(self):
         url = reverse('token_obtain_pair')
         data = {
             'username': 'testuser',
@@ -187,36 +130,22 @@ class LoginTest(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)    
-
-
-
-# class loginSerializerTestCase(TestCase):
-#     def setup(self):
-#         self.client = APIClient()
-#         self.valid_data = {
-#             'username': 'testuser',
-#             'password': 'testpassword',
-
-#         }
-#         self.invalid_password_data_1 = {
-#             'username': 'testuser',
-#             'password': 'password',
-#         }
-        
-#     def test_valid_data_1(self):
-#         self.invalid_password_data_1
-#         response = self.client.post(reverse('login'), self.valid_data, format='json')
-#         print(response.content, "****")
-#         self.assertEqual(response.status_code, 201)
-#         print(response.content,'****login2\n')
-#         user = User.objects.get(username='testuser')
-#         self.assertTrue(user.check_password('testpassword'))
     
-    # def test_invalid_password_1(self):
-    #     response = self.client.post(reverse('login'), self.invalid_password_data, format='json')
-    #     print(response.content,'#$inval\n')        
-    #     self.assertEqual(response.status_code, 400)
-    #     self.assertEquals(json.loads(response.content)['password'], ["['This password is not correct.']"])
+    def test_invalid_login_username(self):
+        url = reverse('token_obtain_pair')
+        data = {
+            'username': 'userhi',
+            'password': 'testpassword'
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)   
+        response_data = json.loads(response.content.decode('utf-8'))
+        print("chetoricriss",response_data)
+        self.assertEqual(response_data, {'detail': 'No active account found with the given credentials'})
+
+
+
+
 
 
 
@@ -226,10 +155,61 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from .models import CustomUser
 
+# class EditProfileTest(TestCase):
+#     def setUp(self):
+#         self.user = CustomUser.objects.create_user(
+#             username='testuser',
+#             email='testuser@example.com',
+#             password='testpassword',
+#             #avatar='avatars/default.jpg',
+#             is_active=True
+#         )
+#         self.client = APIClient()
 
-        
-        
-        
+#     def test_valid_editprofile(self):
+#         url = reverse('editprofile')
+#         self.client.force_authenticate(user=self.user)
+#         new_username = 'newusername'
+#         new_password = 'newpassword'
+#         #new_avatar = '../avatars/avatars/new_avatar.jpg'
+#         data = {
+#             'username': new_username,
+#             'password': new_password,
+#             #'avatar': new_avatar
+#         }
+#         response = self.client.put(url, data, format='json')
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         self.user.refresh_from_db()
+#         self.assertEqual(self.user.username, new_username)
+#         self.assertTrue(self.user.check_password(new_password))
+#         #self.assertEqual(self.user.avatar.path, new_avatar)
+
+#     def test_invalid_edit_profile(self):
+#         url = reverse('editprofile')
+#         self.client.force_authenticate(user=self.user)
+#         new_username = 'newusername'
+#         # Password is too short (less than 8 characters)
+#         new_password = 'short'
+#         # Invalid avatar path
+#         #new_avatar = '/invalid/path/to/avatar.jpg'
+#         data = {
+#             'username': new_username,
+#             'password': new_password,
+#         #    'avatar': new_avatar
+#         }
+#         response = self.client.put(url, data, format='json')
+#         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+#         # Check that the user's fields haven't been updated
+#         self.user.refresh_from_db()
+#         self.assertEqual(self.user.username, 'testuser')
+#         self.assertTrue(self.user.check_password('testpassword'))
+#         #self.assertEqual(self.user.avatar.path, 'avatars/default.jpg')
+
+
+
+
+
+
 
 class EditProfileTest(TestCase):
     def setUp(self):
@@ -240,28 +220,24 @@ class EditProfileTest(TestCase):
             #avatar='avatars/default.jpg',
             is_active=True
         )
+        # self.client.force_authenticate(user=self.user)
         self.client = APIClient()
-
-    def test_valid_editprofile(self):
-        url = reverse('editprofile')
-        self.client.force_authenticate(user=self.user)
+    def test_edit_profile(self):
+        url = reverse('editprofile', args=[self.user.id])
         new_username = 'newusername'
-        new_password = 'newpassword'
-        #new_avatar = '../avatars/avatars/new_avatar.jpg'
+        new_password = 'newpassword123'
         data = {
             'username': new_username,
             'password': new_password,
-            #'avatar': new_avatar
         }
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.user.refresh_from_db()
         self.assertEqual(self.user.username, new_username)
         self.assertTrue(self.user.check_password(new_password))
-        #self.assertEqual(self.user.avatar.path, new_avatar)
-
+    
     def test_invalid_edit_profile(self):
-        url = reverse('editprofile')
+        url = reverse('editprofile', args=[self.user.id])
         self.client.force_authenticate(user=self.user)
         new_username = 'newusername'
         # Password is too short (less than 8 characters)
@@ -275,6 +251,8 @@ class EditProfileTest(TestCase):
         }
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        print("statuscode",response.status_code)
+        print("responses",response.content)
         # Check that the user's fields haven't been updated
         self.user.refresh_from_db()
         self.assertEqual(self.user.username, 'testuser')
@@ -282,44 +260,50 @@ class EditProfileTest(TestCase):
         #self.assertEqual(self.user.avatar.path, 'avatars/default.jpg')
 
 
-# class editprofiletestcase(TestCase):
-#     def setup(self):
-#         self.client = APIClient()
-#         self.valid_data = {
-#             'username': 'testuser',
-#             'password': 'testpassword',
-
-#         }
-#         self.invalid_password_data = {
-#             'username': 'testuser',
-#             'password': 'password',
-#         }\
-
-from users.serializers import ForgotPasswordSerializer
 
 
-class ForgotPasswordAPIViewTestCase(TestCase):
+
+
+
+class ResetPasswordViewTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse('forgot_password')
+        self.url ="/auth/users/reset_password/"
 
-    def test_forgot_password_valid_email(self):
-        user = CustomUser.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
+    def test_reset_password_valid_email(self):
+        user = CustomUser.objects.create_user(username='testuser', email='test@example.com', password='testpassword',is_active=1)
         data = {'email': 'test@example.com'}
         response = self.client.post(self.url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, {'detail': 'Password reset email has been sent.'})
-        print(response.content,"ready")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.data,None )
+        print(response.content,"email_evalid")
 
-    def test_forgot_password_invalid_email(self):
+    def test_reset_password_dosnt_exist_email(self):
         data = {'email': 'invalid@example.com'}
         response = self.client.post(self.url, data, format='json')
+        #self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        #self.assertEqual(response.content.bytes,'User with given email does not exist.')
+        #print("hello guys",response.data)
+        #print(response.content,"email_not_invalid")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, {'error': 'User with this email does not exist.'})
-        print(response.content,"hi")
+        response_data = json.loads(response.content.decode('utf-8'))
+        print("helloworld",response_data)
+        self.assertEqual(response_data[0], 'User with given email does not exist.')
+    
+    def test_reset_password_invalid_email(self):
+        data = {'email': 'invalidexample.com'}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response_data = json.loads(response.content.decode('utf-8'))
+        print("higuys",response_data)
+        self.assertEqual(response_data, {'email': ['Enter a valid email address.']})
 
 
-    def test_forgot_password_serializer_invalid(self):
-        data = {'email': 'invalid'}
-        serializer = ForgotPasswordSerializer(data=data)
-        self.assertFalse(serializer.is_valid())
+
+        
+
+
+    # def test_forgot_password_serializer_invalid(self):
+    #     data = {'email': 'invalid'}
+    #     serializer = ForgotPasswordSerializer(data=data)
+    #     self.assertFalse(serializer.is_valid())

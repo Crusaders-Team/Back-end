@@ -9,7 +9,7 @@ from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.http import JsonResponse
-from django.urls import reverse_lazy
+from django.urls import reverse
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -106,7 +106,7 @@ class ForgotPasswordAPIView(APIView):
                 if form.is_valid():
                     subject = 'Password reset'
                     message = 'Please reset your password by clicking on the following link: {0}'.format(
-                        request.build_absolute_uri(reverse_lazy('password_reset_confirm', kwargs={
+                        request.build_absolute_uri(reverse('password_reset_confirm', kwargs={
                             'uidb64': urlsafe_b64encode(force_bytes(user.pk)).decode(),
                             'token': default_token_generator.make_token(user),
                         }))
