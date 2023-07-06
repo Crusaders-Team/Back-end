@@ -52,7 +52,7 @@ from .token import account_activation_token
 
 class EditProfileView(UpdateAPIView):
     serializer_class = EditProfileSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     print("1\n")
     queryset=CustomUser.objects.all()
     print("2\n")

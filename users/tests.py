@@ -16,6 +16,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from .models import CustomUser
 import json
+from rest_framework.test import APITestCase
+from rest_framework_simplejwt.tokens import AccessToken
 
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -227,6 +229,15 @@ from .models import CustomUser
 #         # self.client.force_authenticate(user=self.user)
 #         self.client = APIClient()
 #     def test_edit_profile(self):
+#         url = reverse('token_obtain_pair')
+#         data = {
+#             'username': 'testuser',
+#             'password': 'testpassword'
+#         }
+#         response = self.client.post(url, data, format='json')
+#         access = json.loads(response.content)["access"]
+#         print(access,"****************")
+#         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
 #         url = reverse('editprofile', args=[self.user.id])
 #         new_username = 'newusername'
 #         new_password = 'newpassword123'
