@@ -1,17 +1,20 @@
-from django.contrib.auth.models import AbstractUser
+from django.test import TestCase
+from users.models import CustomUser
+from django.apps import apps
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
-from .models import Tag, Video
-from .serializers import TagSerializer, VideoSerializer
-
+from video_and_tag.models import Tag, Video
+from video_and_tag.serializers import TagSerializer, VideoSerializer
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend_project.settings')
 class TagTests(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.tag1 = Tag.objects.create(name='tag1')
         self.tag2 = Tag.objects.create(name='tag2')
-        self.user = AbstractUser.objects.create_user(username='testuser', password='Yasin2324@133',email='testuser@gmail.com')
+        self.user = CustomUser.objects.create_user(username='testuser', password='Yasin2324@133',email='testuser@gmail.com')
         self.client.force_authenticate(user=self.user)
 
     def test_get_all_tags(self):
@@ -36,7 +39,7 @@ class TagTests(APITestCase):
 class VideoTests(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = AbstractUser.objects.create_user(username='testuser2', password='Yasin2324@1332',email='testuser2@gmail.com')
+        self.user = CustomUser.objects.create_user(username='testuser2', password='Yasin2324@1332',email='testuser2@gmail.com')
         self.video1 = Video.objects.create(user=self.user, title='video1', description='description1')
         self.video2 = Video.objects.create(user=self.user, title='video2', description='description2')
         self.tag1 = Tag.objects.create(name='tag1')
