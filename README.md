@@ -42,3 +42,5 @@ The Django application can be configured using environment variables. The follow
     DATABASE_PASSWORD: ****.
     DATABASE_HOST: .
     DATABASE_PORT: The port number of the database server. Default is 5432.
+
+helloword
